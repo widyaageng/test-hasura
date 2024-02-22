@@ -1,0 +1,113 @@
+{
+    "allowlist": [
+        {
+            "collection": "allowed-queries",
+            "scope": {
+                "global": true
+            }
+        }
+    ],
+    "query_collections": [
+        {
+            "definition": {
+                "queries": [
+                    {
+                        "name": "getUserByUsername",
+                        "query": "query getUserByUsername($username: String!) {\r\n  data: hasuraschema_test_table(where: {user: {_eq : $username}}) {\r\n    id,\r\n    user,\r\n    user_metadata\r\n  }\r\n}"
+                    },
+                    {
+                        "name": "getUserFriendsByUsername",
+                        "query": "query getUserFriendsByUsername($username: String!) {\n  data: hasuraschema_getuserfriends(where: {user: {_eq: $username}}) {\n    id\n    user\n    friends\n  }\n}"
+                    }
+                ]
+            },
+            "name": "allowed-queries"
+        }
+    ],
+    "rest_endpoints": [
+        {
+            "comment": "",
+            "definition": {
+                "query": {
+                    "collection_name": "allowed-queries",
+                    "query_name": "getUserByUsername"
+                }
+            },
+            "methods": [
+                "POST"
+            ],
+            "name": "getUserByUsername",
+            "url": "user"
+        },
+        {
+            "comment": "",
+            "definition": {
+                "query": {
+                    "collection_name": "allowed-queries",
+                    "query_name": "getUserFriendsByUsername"
+                }
+            },
+            "methods": [
+                "GET"
+            ],
+            "name": "getUserFriendsByUsername",
+            "url": "user-friend/:username"
+        }
+    ],
+    "sources": [
+        {
+            "configuration": {
+                "connection_info": {
+                    "database_url": "postgresql://postgres:postgrespw@192.168.192.1:5433/hasuradb",
+                    "isolation_level": "read-committed",
+                    "use_prepared_statements": false
+                }
+            },
+            "kind": "postgres",
+            "name": "LocalHasuraPostgres",
+            "tables": [
+                {
+                    "select_permissions": [
+                        {
+                            "comment": "",
+                            "permission": {
+                                "columns": [
+                                    "id",
+                                    "friends",
+                                    "user"
+                                ],
+                                "filter": {}
+                            },
+                            "role": "functional_user"
+                        }
+                    ],
+                    "table": {
+                        "name": "getuserfriends",
+                        "schema": "hasuraschema"
+                    }
+                },
+                {
+                    "select_permissions": [
+                        {
+                            "comment": "",
+                            "permission": {
+                                "columns": [
+                                    "id",
+                                    "user",
+                                    "user_metadata"
+                                ],
+                                "filter": {}
+                            },
+                            "role": "functional_user"
+                        }
+                    ],
+                    "table": {
+                        "name": "test_table",
+                        "schema": "hasuraschema"
+                    }
+                }
+            ]
+        }
+    ],
+    "version": 3
+}
