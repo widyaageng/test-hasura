@@ -9,9 +9,7 @@ clients:
   - url: http://192.168.192.1:3100/loki/api/v1/push
 
 scrape_configs:
-
 # local machine logs
-
 - job_name: local
   static_configs:
   - targets:
@@ -19,6 +17,19 @@ scrape_configs:
     labels:
       job: hasura
       __path__: /home/widya/works/github/hasura/hasura/logs/*.log
+- job_name: flog_scrape
+  docker_sd_configs:
+    - host: unix:///var/run/docker.sock
+      refresh_interval: 5s
+      filters:
+        - name: label
+          values: ["logging=promtail"]
+  relabel_configs:
+    - source_labels: ["__meta_docker_container_name"]
+      regex: "/(.*)"
+      target_label: "instance"
+    - source_labels: ["__meta_docker_container_label_logging_jobname"]
+      target_label: "job"
   
 ## docker logs
 
