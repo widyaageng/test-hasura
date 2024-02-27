@@ -25,7 +25,7 @@ scrape_configs:
         - name: label
           values: ["logging=promtail"]
   relabel_configs:
-    - source_labels: ["__meta_kubernetes_pod_container_name"]
+    - source_labels: ["__meta_docker_container_name"]
       regex: "/(.*)"
       target_label: "instance"
     - source_labels: ["__meta_docker_container_label_logging_jobname"]
