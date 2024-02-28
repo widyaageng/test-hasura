@@ -1,7 +1,8 @@
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hasura
+  namespace: hasura-with-obs
   labels:
     app: hasura
     logging: "promtail"
@@ -20,7 +21,7 @@ spec:
     spec:
       containers:
         - name: graphql-engine
-          image: hasura/graphql-engine:v1.3.3
+          image: hasura/graphql-engine:v2.28.0
           ports:
             - containerPort: 8080
           readinessProbe:
@@ -39,56 +40,17 @@ spec:
               initialDelaySeconds: 20
               periodSeconds: 10
               timeoutSeconds: 5
-          env:
-          - name: HASURA_GRAPHQL_METADATA_DATABASE_URL
-            secretKeyRef:
-              name: hasura-secrets
-              key: HASURA_GRAPHQL_METADATA_DATABASE_URL
-          - name: PG_DATABASE_URL
-            secretKeyRef:
-              name: hasura-secrets
-              key: PG_DATABASE_URL
-          - name: HASURA_GRAPHQL_ADMIN_SECRET
-            secretKeyRef:
-              name: hasura-secrets
-              key: HASURA_GRAPHQL_ADMIN_SECRET
-          - name: HASURA_GRAPHQL_JWT_SECRET
-            secretKeyRef:
-              name: hasura-secrets
-              key: HASURA_GRAPHQL_JWT_SECRET
-          - name: HASURA_GRAPHQL_ENABLE_CONSOLE
-            configMapKeyRef:
+          envFrom:
+          - configMapRef:
               name: hasura-config
-              key: HASURA_GRAPHQL_ENABLE_CONSOLE
-          - name: HASURA_GRAPHQL_DEV_MODE
-            configMapKeyRef:
-              name: hasura-config
-              key: HASURA_GRAPHQL_DEV_MODE
-          - name: HASURA_GRAPHQL_CONSOLE_ASSETS_DIR
-            configMapKeyRef:
-              name: hasura-config
-              key: HASURA_GRAPHQL_CONSOLE_ASSETS_DIR
-          - name: HASURA_GRAPHQL_ENABLED_LOG_TYPES
-            configMapKeyRef:
-              name: hasura-config
-              key: HASURA_GRAPHQL_ENABLED_LOG_TYPES
-          - name: HASURA_GRAPHQL_METADATA_DEFAULTS
-            configMapKeyRef:
-              name: hasura-config
-              key: HASURA_GRAPHQL_METADATA_DEFAULTS
-          - name: HASURA_GRAPHQL_ENABLED_APIS
-            configMapKeyRef:
-              name: hasura-config
-              key: HASURA_GRAPHQL_ENABLED_APIS
-          - name: HASURA_GRAPHQL_ENABLE_METADATA_QUERY_LOGGING
-            configMapKeyRef:
-              name: hasura-config
-              key: HASURA_GRAPHQL_ENABLE_METADATA_QUERY_LOGGING
+          - secretRef:
+              name: hasura-secret
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: hasura
+  name: hasura-service
+  namespace: hasura-with-obs
   labels:
     app: hasura
     namespace: hasura-with-obs
