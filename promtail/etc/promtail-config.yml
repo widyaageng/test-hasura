@@ -1,5 +1,5 @@
 server:
-  http_listen_port: 9081
+  http_listen_port: 9080
   grpc_listen_port: 0
 
 positions:
@@ -10,27 +10,100 @@ clients:
 
 scrape_configs:
 # kubernetes pod logs
-- job_name: kube_pod_promtail_scrape
-  kubernetes_sd_configs:
-  - role: pod
-  relabel_configs:
-    - source_labels: ["__meta_docker_container_label_logging_jobname"]
-      target_label: "job"
-    - source_labels: [__meta_kubernetes_pod_container_name]
-      regex: "/(.*)"
-      target_label: "instance"
-    - source_labels: [__meta_kubernetes_pod_name]
-      target_label: pod_name
-    - source_labels: [__meta_kubernetes_namespace]
+  - job_name: kubernetes-pods
+    kubernetes_sd_configs:
+    - role: pod
+    relabel_configs:
+    - source_labels:
+      - __meta_kubernetes_pod_node_name
+      target_label: __host__
+    - action: drop
+      regex: ^$
+      source_labels:
+      - __meta_kubernetes_pod_label_name
+    - action: replace
+      replacement: $1
+      separator: /
+      source_labels:
+      - __meta_kubernetes_namespace
+      - __meta_kubernetes_pod_label_name
+      target_label: job
+    - action: replace
+      source_labels:
+      - __meta_kubernetes_namespace
       target_label: namespace
-# # local machine logs
-# - job_name: local
-#   static_configs:
-#   - targets:
-#       - http://192.168.192.1
-#     labels:
-#       job: hasura
-#       __path__: /home/widya/works/github/hasura/hasura/logs/*.log
+    - action: replace
+      source_labels:
+      - __meta_kubernetes_pod_name
+      target_label: instance
+    - action: replace
+      replacement: /var/log/pods/*$1/*.log
+      regex: true/(.*)
+      separator: /
+      source_labels:
+        - __meta_kubernetes_pod_annotationpresent_kubernetes_io_config_hash
+        - __meta_kubernetes_pod_annotation_kubernetes_io_config_hash
+        - __meta_kubernetes_pod_container_name
+      target_label: __path__
+    - action: replace
+      replacement: var/log/pods/*$1/*.log
+      separator: /
+      source_labels:
+      - __meta_kubernetes_pod_uid
+      - __meta_kubernetes_pod_container_name
+      target_label: __path__
+  - job_name: kubernetes-pods-app
+    kubernetes_sd_configs:
+    - role: pod
+    relabel_configs:
+    - source_labels:
+      - __meta_kubernetes_pod_node_name
+      target_label: __host__
+    - action: drop
+      regex: ^$
+      source_labels:
+      - __meta_kubernetes_pod_label_app
+    - action: replace
+      replacement: $1
+      separator: /
+      source_labels:
+      - __meta_kubernetes_namespace
+      - __meta_kubernetes_pod_label_app
+      target_label: job
+    - action: replace
+      source_labels:
+      - __meta_kubernetes_namespace
+      target_label: namespace
+    - action: replace
+      source_labels:
+      - __meta_kubernetes_pod_name
+      target_label: instance
+    - action: labelmap
+      regex: __meta_kubernetes_pod_label_(.+)
+    - replacement: /var/log/pods/$1
+      separator: /
+      source_labels:
+      - __meta_kubernetes_pod_uid
+      - __meta_kubernetes_pod_container_name
+      target_label: __path__
+# local machine logs
+  - job_name: local
+    static_configs:
+    - targets:
+        - localhost
+      labels:
+        job: hasura
+        __path__: /var/log/**/*.log
+    pipeline_stages:
+    - replace:
+        expression: '\"{'
+        replace: '{'
+    - replace:
+        expression: '}\\n\"'
+        replace: '}'
+    - replace:
+        expression: '\\\"'
+        replace: '"'
 # # docker logs
 # - job_name: flog_scrape
 #   docker_sd_configs:
