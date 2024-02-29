@@ -16,7 +16,6 @@ spec:
         app: promtail
     spec:
       containers:
-        containers:
         - name: promtail
           image: grafana/promtail:2.8.2
           ports:
@@ -24,10 +23,12 @@ spec:
           volumeMounts:
             - name: promtail-configfile
               mountPath: /etc/promtail
+          args:
+            - -config.file=/etc/promtail/promtail-config.yaml
       volumes:
         - name: promtail-configfile
           hostPath:
-            path: /home/widya/works/github/hasura/promtail/etc
+            path: /hosthome/promtail/etc
             type: Directory
 ---
 apiVersion: v1

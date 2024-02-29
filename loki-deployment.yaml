@@ -16,23 +16,35 @@ spec:
         app: loki
     spec:
       containers:
-        containers:
         - name: loki
           image: grafana/loki:2.4.0
           ports:
             - containerPort: 3100
+          volumeMounts:
+            - name: loki-configfile
+              mountPath: /etc/loki
+          args:
+            - -config.file=/etc/loki/loki-config.yml
+      volumes:
+        - name: loki-configfile
+          hostPath:
+            path: /hosthome/loki/etc
+            type: Directory
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: loki
+  name: loki-service
   namespace: hasura-with-obs
   labels:
     app: loki
     namespace: hasura-with-obs
 spec:
+  type: NodePort
   ports:
-    - port: 3100
+    - name: loki-port
+      port: 3100
       targetPort: 3100
+      nodePort: 30310
   selector:
     app: loki

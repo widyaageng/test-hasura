@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: grafana
+  namespace: hasura-with-obs
   labels:
     app: grafana
     namespace: hasura-with-obs
@@ -16,22 +17,45 @@ spec:
         app: grafana
     spec:
       containers:
-        containers:
         - name: grafana
           image: grafana/grafana:9.3.2
           ports:
-            - containerPort: 3005
+            - containerPort: 3000
+          volumeMounts:
+            - name: grafana-volume-datasources
+              mountPath: /etc/grafana/provisioning/datasources
+            - name: grafana-volume-varlib
+              mountPath: /var/lib/grafana
+            - name: grafana-volume-grafana-ini
+              mountPath: /etc/grafana/grafana.ini
+      volumes:
+        - name: grafana-volume-datasources
+          hostPath:
+            path: /hosthome/grafana/datasources
+            type: Directory
+        - name: grafana-volume-varlib
+          hostPath:
+            path: /hosthome/grafana/var/lib
+            type: Directory
+        - name: grafana-volume-grafana-ini
+          hostPath:
+            path: /hosthome/grafana/grafana.ini
+            type: File
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: grafana
+  name: grafana-service
+  namespace: hasura-with-obs
   labels:
     app: grafana
     namespace: hasura-with-obs
 spec:
+  type: NodePort
   ports:
-    - port: 3005
-      targetPort: 3005
+    - name: grafana-port
+      port: 3000
+      targetPort: 3000
+      nodePort: 30300
   selector:
     app: grafana

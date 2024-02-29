@@ -20,31 +20,33 @@ spec:
         logging_jobname: "graphql-engine"
     spec:
       containers:
+        - name: promtail
+          image: grafana/promtail:2.8.2
+          ports:
+            - containerPort: 9080
+          volumeMounts:
+            - name: promtail-configfile
+              mountPath: /etc/promtail
+          args:
+            - -config.file
+            - /etc/promtail/promtail-config.yml
         - name: graphql-engine
           image: hasura/graphql-engine:v2.28.0
+          # image: busybox
+          # image: busybox
+          # command: ["echo "yo?" && sh -c 'sleep 1000000'"]
           ports:
             - containerPort: 8080
-          readinessProbe:
-              httpGet:
-                path: /healthz
-                port: 443
-                scheme: HTTPS
-              initialDelaySeconds: 5
-              periodSeconds: 10
-              timeoutSeconds: 5
-          livenessProbe:
-              httpGet:
-                path: /healthz
-                port: 443
-                scheme: HTTPS
-              initialDelaySeconds: 20
-              periodSeconds: 10
-              timeoutSeconds: 5
           envFrom:
           - configMapRef:
               name: hasura-config
           - secretRef:
               name: hasura-secret
+      volumes:
+        - name: promtail-configfile
+          hostPath:
+            path: /hosthome/promtail/etc
+            type: Directory
 ---
 apiVersion: v1
 kind: Service
@@ -55,8 +57,14 @@ metadata:
     app: hasura
     namespace: hasura-with-obs
 spec:
+  type: NodePort
   ports:
-    - port: 8080
+    - name: hge-port
+      port: 8080
       targetPort: 8080
+      nodePort: 30080
+    # - name: promtail-port
+    #   port: 9080
+    #   targetPort: 9080
   selector:
     app: hasura
