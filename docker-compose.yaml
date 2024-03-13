@@ -75,11 +75,25 @@ services:
   #     start_period: 5s
   #   networks:
   #     - hasura
+  alertmanager:
+    container_name: hge-alert-manager
+    image: prom/alertmanager:v0.25.0
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager/config.yml/:/etc/alertmanager/alertmanager.yml
+    restart: always
+    deploy:
+      mode: global
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.enable-lifecycle"
     ports:
       - 9090:9090
     restart: unless-stopped
@@ -88,6 +102,10 @@ services:
       - ./prometheus/prom_data:/prometheus
     networks:
       - hasura
+    links:
+      - alertmanager:alertmanager
+    deploy:
+      mode: global
   promtail:
     image: grafana/promtail:2.8.2
     deploy:
