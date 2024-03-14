@@ -10,7 +10,6 @@ rules:
 ---
 apiVersion: v1
 kind: ServiceAccount
-
 metadata:
   name: hasura-with-obs-svc-acct
   namespace: hasura-with-obs
