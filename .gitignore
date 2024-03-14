@@ -1,1 +1,6 @@
 *.db
+prometheus/prom-data/*
+postgres/*
+minikube-linux-amd64
+promtail/bin/promtail-linux-amd64
+hasura/graphql-engine
