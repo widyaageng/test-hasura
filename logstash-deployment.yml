@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: logstash-deployment
+  name: logstash
   namespace: hasura-with-obs
 spec:
   replicas: 1
@@ -26,13 +26,13 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: logstash-configmap
+          name: logstash-config
           items:
             - key: logstash.yml
               path: logstash.yml
       - name: logstash-pipeline-volume
         configMap:
-          name: logstash-configmap
+          name: logstash-config
           items:
             - key: logstash.conf
               path: logstash.conf

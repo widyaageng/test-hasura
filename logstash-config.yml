@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: logstash-configmap
+  name: logstash-config
   namespace: hasura-with-obs
 data:
   logstash.yml: |
@@ -14,18 +14,33 @@ data:
       }
     }
     filter {
-      grok {
+      if [kubernetes][container][name] == "graphql-engine" {
+        grok {
           match => { "message" => "%{COMBINEDAPACHELOG}" }
-      }
-      date {
-        match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
-      }
-      geoip {
-          source => "clientip"
+        }
+        date {
+          match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
+        }
+        json {
+          source => "message"
+        }
+        json {
+          source => "message"
+        }
+      } else {
+        grok {
+            match => { "message" => "%{COMBINEDAPACHELOG}" }
+        }
+        date {
+          match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
         }
       }
-      output {
-        elasticsearch {
-          hosts => ["elasticsearch-logging:9200"]
+      geoip {
+        source => "clientip"
+      }
+    }
+    output {
+      elasticsearch {
+        hosts => ["elastic-service:9200"]
       }
     }

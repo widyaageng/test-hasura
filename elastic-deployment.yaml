@@ -1,23 +1,25 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: es-config
+  name: elastic-config
   namespace: hasura-with-obs
 data:
   ES_JAVA_OPTS: -Xms256m -Xmx256m
+  discovery.type: single-node
+  discovery.seed_hosts : "[\"localhost\", \"127.0.0.1\"]"
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
-  name: elasticsearch-logging
+  name: elastic
   namespace: hasura-with-obs
   labels:
     app: elk-logging
 spec:
-  serviceName: elasticsearch-logging
-  replicas: 2
-  updateStrategy:
-    type: RollingUpdate
+  # serviceName: elk-logging
+  replicas: 1
+  # updateStrategy:
+  #   type: RollingUpdate
   selector:
     matchLabels:
       app: elk-logging
@@ -26,10 +28,10 @@ spec:
       labels:
         app: elk-logging
     spec:
-      serviceAccountName: elasticsearch-logging
+      serviceAccountName: elk-logging
       containers:
-      - image: elasticsearch:6.8.4
-        name: elasticsearch-logging
+      - image: elasticsearch:7.17.18
+        name: elastic
         ports:
         - containerPort: 9200
           name: db
@@ -38,24 +40,29 @@ spec:
           name: transport
           protocol: TCP
         volumeMounts:
-        - name: elasticsearch-logging
+        - name: elastic
           mountPath: /data
         env:
         - name: "NAMESPACE"
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: ES_JAVA_OPTS
+        - name: discovery.type
           valueFrom:
               configMapKeyRef:
-                  name: es-config
-                  key: ES_JAVA_OPTS
+                  name: elastic-config
+                  key: discovery.type
+        - name: discovery.seed_hosts
+          valueFrom:
+              configMapKeyRef:
+                  name: elastic-config
+                  key: discovery.seed_hosts
       volumes:
-      - name: elasticsearch-logging
+      - name: elastic
         emptyDir: {}
       initContainers:
       - image: alpine:3.6
         command: ["/sbin/sysctl", "-w", "vm.max_map_count=262144"]
-        name: elasticsearch-logging-init
+        name: elastic-init
         securityContext:
           privileged: true

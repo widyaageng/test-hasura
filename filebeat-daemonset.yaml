@@ -15,13 +15,8 @@ metadata:
     app: filebeat
 rules:
 - apiGroups: [""] # "" indicates the core API group
-  resources:
-  - namespaces
-  - pods
-  verbs:
-  - get
-  - watch
-  - list
+  resources: ["namespaces", "pods"]
+  verbs: ["list", "get", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
