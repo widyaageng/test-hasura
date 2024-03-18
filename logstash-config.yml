@@ -19,13 +19,21 @@ data:
           match => { "message" => "%{COMBINEDAPACHELOG}" }
         }
         date {
-          match => [ "timestamp" , "dd/MMM/yyyy:HH:mm:ss Z" ]
+          match => [ "timestamp" , "ISO8601", "yyyy-MM-dd'T'HH:mm:ss.SSSZ"]
         }
-        json {
-          source => "message"
-        }
-        json {
-          source => "message"
+        # json {
+        #   source => "message"
+        #   target => "message"
+        # }
+        # json {
+        #   source => "message"
+        #   target => "message"
+        # }
+        if "http-log" in [message] or "query-log in [message]" {
+          json {
+            source => "message"
+            target => "hasura.log"
+          }
         }
       } else {
         grok {

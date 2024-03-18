@@ -1,0 +1,52 @@
+{
+    "detail": {
+        "generated_sql": {
+            "data": {
+                "prepared_arguments": [
+                    [
+                        2,
+                        "asdf"
+                    ]
+                ],
+                "query": "SELECT  coalesce(json_agg(\"root\" ), '[]' ) AS \"root\" FROM  (SELECT  row_to_json((SELECT  \"_e\"  FROM  (SELECT  \"_root.base\".\"id\" AS \"id\", \"_root.base\".\"username\" AS \"username\"       ) AS \"_e\"      ) ) AS \"root\" FROM  (SELECT  *  FROM \"public\".\"test_table\"  WHERE ((\"public\".\"test_table\".\"username\") = (($2)::varchar))     ) AS \"_root.base\"      ) AS \"_root\"      "
+            }
+        },
+        "kind": "database",
+        "query": {
+            "query": "query getFriendsByUsername($username: String!) {\n  data: test_table(where: {username: {_eq: $username}}) {\n    id\n    username\n  }\n  friends: test_table_friend(where: {username: {_eq: $username}}) {\n    friend_id,\n    friend_username\n  }\n}",
+            "variables": {
+                "username": "asdf"
+            }
+        },
+        "request_id": "a290768a-c3b4-4cd2-88e8-24af8e66d62e"
+    },
+    "level": "info",
+    "timestamp": "2024-03-18T16:50:26.122+0000",
+    "type": "query-log"
+}
+{
+    "detail": {
+        "generated_sql": {
+            "friends": {
+                "prepared_arguments": [
+                    [
+                        2,
+                        "asdf"
+                    ]
+                ],
+                "query": "SELECT  coalesce(json_agg(\"root\" ), '[]' ) AS \"root\" FROM  (SELECT  row_to_json((SELECT  \"_e\"  FROM  (SELECT  \"_root.base\".\"friend_id\" AS \"friend_id\", \"_root.base\".\"friend_username\" AS \"friend_username\"       ) AS \"_e\"      ) ) AS \"root\" FROM  (SELECT  *  FROM \"public\".\"test_table_friend\"  WHERE ((\"public\".\"test_table_friend\".\"username\") = (($2)::varchar))     ) AS \"_root.base\"      ) AS \"_root\"      "
+            }
+        },
+        "kind": "database",
+        "query": {
+            "query": "query getFriendsByUsername($username: String!) {\n  data: test_table(where: {username: {_eq: $username}}) {\n    id\n    username\n  }\n  friends: test_table_friend(where: {username: {_eq: $username}}) {\n    friend_id,\n    friend_username\n  }\n}",
+            "variables": {
+                "username": "asdf"
+            }
+        },
+        "request_id": "a290768a-c3b4-4cd2-88e8-24af8e66d62e"
+    },
+    "level": "info",
+    "timestamp": "2024-03-18T16:50:26.122+0000",
+    "type": "query-log"
+}

@@ -1,0 +1,27 @@
+{
+    "detail": {
+        "http_info": {
+            "content_encoding": null,
+            "http_version": "HTTP/1.1",
+            "ip": "127.0.0.1",
+            "method": "GET",
+            "status": 200,
+            "url": "/api/rest/friends/asdf"
+        },
+        "operation": {
+            "query_execution_time": 1.6500751e-2,
+            "request_id": "6571f88d-d310-4a9a-84b2-6ccaae20aaee",
+            "request_mode": "non-graphql",
+            "request_read_time": 2.15e-7,
+            "response_size": 24,
+            "uncompressed_response_size": 24,
+            "user_vars": {
+                "x-hasura-role": "admin"
+            }
+        },
+        "request_id": "6571f88d-d310-4a9a-84b2-6ccaae20aaee"
+    },
+    "level": "info",
+    "timestamp": "2024-03-18T17:05:32.883+0000",
+    "type": "http-log"
+}
