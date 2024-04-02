@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: elastic-service
-  namespace: hasura-with-obs
+  namespace: data-as-a-service-hl-global
   labels:
     app: elk-logging
 spec:

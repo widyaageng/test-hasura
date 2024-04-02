@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: promtail-config
-  namespace: hasura-with-obs
+  namespace: data-as-a-service-hl-global
 data:
   promtail-config.yaml: |
     server:
