@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.32.0 (HEAD)
+  labels:
+    io.kompose.service: loki
+  name: loki
+spec:
+  selector:
+    matchLabels:
+      io.kompose.service: loki
+  template:
+    metadata:
+      labels:
+        io.kompose.network/testkompose-default: "true"
+        io.kompose.service: loki
+    spec:
+      containers:
+        - args:
+            - -config.file=/etc/loki/local-config.yaml
+          image: grafana/loki:2.8.2
+          name: loki
+          ports:
+            - containerPort: 3100
+              hostPort: 3100
+              protocol: TCP
+      restartPolicy: Always

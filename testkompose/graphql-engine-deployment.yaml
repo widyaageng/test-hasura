@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.32.0 (HEAD)
+    logging: promtail
+    logging_jobname: graphql-engine
+  labels:
+    io.kompose.service: graphql-engine
+  name: graphql-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: graphql-engine
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.32.0 (HEAD)
+        logging: promtail
+        logging_jobname: graphql-engine
+      labels:
+        io.kompose.network/testkompose-default: "true"
+        io.kompose.service: graphql-engine
+    spec:
+      containers:
+        - env:
+            - name: HASURA_GRAPHQL_ADMIN_SECRET
+              value: secret
+            - name: HASURA_GRAPHQL_CONSOLE_ASSETS_DIR
+              value: /srv/console-assets
+            - name: HASURA_GRAPHQL_DEV_MODE
+              value: "true"
+            - name: HASURA_GRAPHQL_EE_LICENSE_KEY
+            - name: HASURA_GRAPHQL_ENABLED_APIS
+              value: metadata,graphql,config,metrics
+            - name: HASURA_GRAPHQL_ENABLED_LOG_TYPES
+              value: startup,http-log,query-log,websocket-log,response-caching-log
+            - name: HASURA_GRAPHQL_ENABLE_CONSOLE
+              value: "true"
+            - name: HASURA_GRAPHQL_METADATA_DATABASE_URL
+              value: postgres://postgres:postgres@postgres:5432/postgres
+            - name: HASURA_GRAPHQL_UNAUTHORIZED_ROLE
+              value: anonymous
+            - name: HGE_DATABASE_URL
+              value: postgres://postgres:postgres@postgres:5432/postgres
+          image: hasura/graphql-engine:v2.28.0.cli-migrations-v3
+          livenessProbe:
+            exec:
+              command:
+                - curl
+                - -f
+                - http://localhost:8080/healthz
+            failureThreshold: 5
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+          name: hge
+          ports:
+            - containerPort: 8080
+              hostPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /hasura-migrations
+              name: graphql-engine-claim0
+            - mountPath: /hasura-metadata
+              name: graphql-engine-claim1
+      restartPolicy: Always
+      volumes:
+        - name: graphql-engine-claim0
+          persistentVolumeClaim:
+            claimName: graphql-engine-claim0
+        - name: graphql-engine-claim1
+          persistentVolumeClaim:
+            claimName: graphql-engine-claim1

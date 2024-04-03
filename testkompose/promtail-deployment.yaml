@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.32.0 (HEAD)
+  labels:
+    io.kompose.service: promtail
+  name: promtail
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: promtail
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.32.0 (HEAD)
+      labels:
+        io.kompose.network/testkompose-default: "true"
+        io.kompose.service: promtail
+    spec:
+      containers:
+        - image: grafana/promtail:2.8.2
+          name: promtail
+          volumeMounts:
+            - mountPath: /etc/promtail/config.yml
+              name: promtail-claim0
+              readOnly: true
+            - mountPath: /var/lib/docker/containers
+              name: promtail-claim1
+              readOnly: true
+            - mountPath: /var/run/docker.sock
+              name: promtail-claim2
+      restartPolicy: Always
+      volumes:
+        - name: promtail-claim0
+          persistentVolumeClaim:
+            claimName: promtail-claim0
+            readOnly: true
+        - name: promtail-claim1
+          persistentVolumeClaim:
+            claimName: promtail-claim1
+            readOnly: true
+        - name: promtail-claim2
+          persistentVolumeClaim:
+            claimName: promtail-claim2
