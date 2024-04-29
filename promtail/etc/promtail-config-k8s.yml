@@ -15,7 +15,7 @@ scrape_configs:
         - localhost
       labels:
         job: hasura
-        __path__: /var/log/containers/**/*graphql-engine*.log
+        __path__: /var/log/hge-pro/hge-pro-ds.log
     pipeline_stages:
     - replace:
         expression: '\"{'

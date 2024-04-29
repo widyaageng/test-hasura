@@ -33,11 +33,19 @@ spec:
             - name: varlibdockercontainers
               mountPath: /var/lib/docker/containers
               readOnly: true
+            - name: stdout-logfile-path
+              mountPath: /var/log/hge-pro
+              readOnly: true
           args:
             - -config.file
             - /etc/promtail/promtail-config-k8s.yml
         - name: graphql-engine
           image: hasura/graphql-engine:v2.28.0
+          command: ["/bin/sh"]
+          args: ["-c", "\"${HGE_BINARY}\" serve 2>&1 | tee /var/log/hge-pro/hge-pro-ds.log"]
+          volumeMounts:
+            - name: stdout-logfile-path
+              mountPath: /var/log/hge-pro
           ports:
             - containerPort: 8080
           envFrom:
@@ -53,6 +61,10 @@ spec:
         - name: logs
           hostPath:
             path: /var/log
+        - name: stdout-logfile-path
+          hostPath:
+            path: /hosthome/logs/var/log/hge-pro
+            type: Directory
         - name: varlibdockercontainers
           hostPath:
             path: /var/lib/docker/containers

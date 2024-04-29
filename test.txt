@@ -1,0 +1,10 @@
+start: 2024-04-29T08:39:29.316, linecount: 42
+end: 2024-04-29T08:46:07.310, linecount: 22203
+timedelta: 6mins38secs=398secs, linedelta: 22161
+filesize: 19.128MB, rps: 55.68, timespan: 398secs
+extrapolate:
+    - business_h : 12h
+    - rps: 55
+    - timespan_d: 90d
+    - filesize_mb: 186858.4522
+    - filesize_gb: 186.858
