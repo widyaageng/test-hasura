@@ -42,7 +42,7 @@ spec:
         - name: graphql-engine
           image: hasura/graphql-engine:v2.28.0
           command: ["/bin/sh"]
-          args: ["-c", "\"${HGE_BINARY}\" serve 2>&1 | tee /var/log/hge-pro/hge-pro-ds.log"]
+          args: ["-c", "\"${HGE_BINARY}\" serve 2>&1 | tee >(split -d -b 100000 /var/log/hge-pro/hge-pro-ds.log -)"]
           volumeMounts:
             - name: stdout-logfile-path
               mountPath: /var/log/hge-pro
